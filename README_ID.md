@@ -33,14 +33,12 @@
 
 ### UserScript
 
-| Greasyfork                                                                        | GitHub                                                                                       |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [![Install][Install-1-image]][Install-1-url] | [![Install][Install-2-image]][Install-2-url] |
+| GitHub |
+| ------ |
+| [![Install][Install-image]][Install-url] |
 
-[Install-1-image]: https://img.shields.io/badge/-Install-blue
-[Install-1-url]: https://greasyfork.org/scripts/456055-chatgpt-exporter
-[Install-2-image]: https://img.shields.io/badge/-Install-blue
-[Install-2-url]: https://raw.githubusercontent.com/pionxzh/chatgpt-exporter/master/dist/chatgpt.user.js
+[Install-image]: https://img.shields.io/badge/-Install-blue
+[Install-url]: https://raw.githubusercontent.com/egoaty/chatgpt-exporter/refs/heads/master/dist/chatgpt.user.js
 
 > Pastikan [`Allow User Scripts` telah diaktifkan](https://www.tampermonkey.net/faq.php?q=Q209) di pengaturan browser Anda untuk Tampermonkey.
 

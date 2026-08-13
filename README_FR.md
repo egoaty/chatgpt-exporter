@@ -33,14 +33,12 @@
 
 ### Script Utilisateur
 
-| Greasyfork | GitHub |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [![Installer][Install-1-image]][install-1-url] | [![Installer][Install-2-image]][install-2-url] |
+| GitHub |
+| ------ |
+| [![Installer][Install-image]][install-url] |
 
-[Install-1-image]: https://img.shields.io/badge/-Installer-blue
-[Install-1-url]: https://greasyfork.org/scripts/456055-chatgpt-exporter
-[Install-2-image]: https://img.shields.io/badge/-Installer-blue
-[Install-2-url]: https://raw.githubusercontent.com/pionxzh/chatgpt-exporter/master/dist/chatgpt.user.js
+[Install-image]: https://img.shields.io/badge/-Installer-blue
+[Install-url]: https://raw.githubusercontent.com/egoaty/chatgpt-exporter/refs/heads/master/dist/chatgpt.user.js
 
 > Assurez-vous que l'option [`Allow User Scripts` est activée](https://www.tampermonkey.net/faq.php?q=Q209) dans les paramètres de votre navigateur pour Tampermonkey.
 
