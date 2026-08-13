@@ -3,7 +3,7 @@
 // @name:zh-CN         ChatGPT Exporter
 // @name:zh-TW         ChatGPT Exporter
 // @namespace          pionxzh
-// @version            2.32.3
+// @version            2.32.4-egoaty1
 // @author             pionxzh
 // @description        Export ChatGPT conversations with one click — backup & share effortlessly!
 // @description:zh-CN  一键导出 ChatGPT 对话，轻松备份与分享
@@ -22961,9 +22961,9 @@ ${content2}`;
     const [hasMore, setHasMore] = h$4(false);
     const [loadingMore, setLoadingMore] = h$4(false);
     const [totalAvailable, setTotalAvailable] = h$4(null);
-    const requestQueue = F$1(() => new RequestQueue(1e3, 1600), []);
-    const archiveQueue = F$1(() => new RequestQueue(1e3, 1600), []);
-    const deleteQueue = F$1(() => new RequestQueue(1e3, 1600), []);
+    const requestQueue = F$1(() => new RequestQueue(5e3, 5e3), []);
+    const archiveQueue = F$1(() => new RequestQueue(5e3, 5e3), []);
+    const deleteQueue = F$1(() => new RequestQueue(5e3, 5e3), []);
     const [progress, setProgress] = h$4({
       total: 0,
       completed: 0,

@@ -387,9 +387,9 @@ const DialogContent: FC<DialogContentProps> = ({ format }) => {
     const [loadingMore, setLoadingMore] = useState(false)
     const [totalAvailable, setTotalAvailable] = useState<number | null>(null)
 
-    const requestQueue = useMemo(() => new RequestQueue<ApiConversationWithId>(1000, 1600), [])
-    const archiveQueue = useMemo(() => new RequestQueue<boolean>(1000, 1600), [])
-    const deleteQueue = useMemo(() => new RequestQueue<boolean>(1000, 1600), [])
+    const requestQueue = useMemo(() => new RequestQueue<ApiConversationWithId>(5000, 5000), [])
+    const archiveQueue = useMemo(() => new RequestQueue<boolean>(5000, 5000), [])
+    const deleteQueue = useMemo(() => new RequestQueue<boolean>(5000, 5000), [])
 
     const [progress, setProgress] = useState({
         total: 0,
