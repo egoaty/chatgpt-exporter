@@ -30,15 +30,16 @@ interface ProgressEvent {
 /** Max retries for generic (non-429) errors before skipping a single request */
 const MAX_RETRIES = 5
 /**
- * Max times the entire queue can be globally paused for rate limiting before
- * giving up and stopping the queue entirely.
- */
-const MAX_GLOBAL_PAUSES = 5
-/**
- * Default pause length (ms) applied to the whole queue on a 429.
- * Used when the API does not return a Retry-After header.
+ * Base pause (ms) on a 429 when the API does not return a Retry-After header.
+ * Doubles on each successive 429 within the same batch, up to MAX_429_PAUSE_MS.
  */
 const DEFAULT_429_PAUSE_MS = 60_000
+/**
+ * Hard cap on the per-pause wait time so a single 429 never freezes the queue
+ * for more than this long. The queue keeps retrying after every pause — there
+ * is no limit on the number of pauses per batch.
+ */
+const MAX_429_PAUSE_MS = 5 * 60_000
 
 export class RequestQueue<T> {
     private eventEmitter = EventEmitter<{
@@ -63,8 +64,8 @@ export class RequestQueue<T> {
      * waits out the remainder before making the next request.
      */
     private pauseUntil = 0
-    /** How many global rate-limit pauses have been applied so far */
-    private globalPauses = 0
+    /** Number of 429 pauses taken in this batch; drives exponential backoff. */
+    private batchPauses = 0
 
     constructor(private minBackoff: number, private maxBackoff: number) {
         this.backoff = minBackoff
@@ -92,7 +93,7 @@ export class RequestQueue<T> {
         this.status = 'IDLE'
         this.backoff = this.minBackoff
         this.pauseUntil = 0
-        this.globalPauses = 0
+        this.batchPauses = 0
         this.total = 0
         this.completed = 0
     }
@@ -144,22 +145,15 @@ export class RequestQueue<T> {
         }
         catch (error) {
             if (error instanceof RateLimitError) {
-                this.globalPauses++
-                if (this.globalPauses > MAX_GLOBAL_PAUSES) {
-                    // Rate limit persists even after several long pauses — abort.
-                    console.warn('[Exporter] Queue stopped: API rate limit did not clear after', MAX_GLOBAL_PAUSES, 'pauses')
-                    this.stop()
-                    return
-                }
-                // Freeze the whole queue. Exponentially increase the pause so
-                // we back off harder if the first pause wasn't long enough.
-                const pauseMs = Math.max(
-                    error.retryAfterMs,
-                    DEFAULT_429_PAUSE_MS * this.globalPauses,
-                )
+                this.batchPauses++
+                // Respect Retry-After if the API gave one; otherwise use
+                // exponential backoff. Never report a rate-limited partial
+                // batch as complete: only the user's Cancel action stops it.
+                const backoffMs = DEFAULT_429_PAUSE_MS * (2 ** (this.batchPauses - 1))
+                const pauseMs = Math.min(MAX_429_PAUSE_MS, Math.max(error.retryAfterMs, backoffMs))
                 this.pauseUntil = Date.now() + pauseMs
                 this.progress(name, 'rate_limited', Math.round(pauseMs / 1000))
-                console.warn(`[Exporter] Rate limited (429). Pausing queue for ${Math.round(pauseMs / 1000)}s (pause #${this.globalPauses})`)
+                console.warn(`[Exporter] Rate limited (429). Pausing ${Math.round(pauseMs / 1000)}s (pause #${this.batchPauses} this batch)`)
                 // Put this item back — it will be retried after the pause clears
                 this.queue.unshift(requestObject)
                 waitMs = 0 // the sleep is handled at the top of the next process() call

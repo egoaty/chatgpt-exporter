@@ -387,9 +387,9 @@ const DialogContent: FC<DialogContentProps> = ({ format }) => {
     const [loadingMore, setLoadingMore] = useState(false)
     const [totalAvailable, setTotalAvailable] = useState<number | null>(null)
 
-    const requestQueue = useMemo(() => new RequestQueue<ApiConversationWithId>(200, 1600), [])
-    const archiveQueue = useMemo(() => new RequestQueue<boolean>(200, 1600), [])
-    const deleteQueue = useMemo(() => new RequestQueue<boolean>(200, 1600), [])
+    const requestQueue = useMemo(() => new RequestQueue<ApiConversationWithId>(1000, 1600), [])
+    const archiveQueue = useMemo(() => new RequestQueue<boolean>(1000, 1600), [])
+    const deleteQueue = useMemo(() => new RequestQueue<boolean>(1000, 1600), [])
 
     const [progress, setProgress] = useState({
         total: 0,
@@ -478,7 +478,7 @@ const DialogContent: FC<DialogContentProps> = ({ format }) => {
             const totalBatches = totalBatchesRef.current
             const partIndex = batchIdx + 1
             const callback = exportAllOptions.find(o => o.label === exportType)?.callback
-            if (callback) {
+            if (callback && results.length > 0) {
                 await callback(format, results, metaList, selectedProject?.display.name, partIndex, totalBatches)
             }
             if (partIndex < totalBatches) {

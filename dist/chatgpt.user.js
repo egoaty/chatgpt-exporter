@@ -22200,8 +22200,8 @@ ${content2}`;
     } };
   }
   const MAX_RETRIES = 5;
-  const MAX_GLOBAL_PAUSES = 5;
   const DEFAULT_429_PAUSE_MS = 6e4;
+  const MAX_429_PAUSE_MS = 5 * 6e4;
   class RequestQueue {
     constructor(minBackoff, maxBackoff) {
       __publicField(this, "eventEmitter", EventEmitter());
@@ -22218,8 +22218,8 @@ ${content2}`;
        * waits out the remainder before making the next request.
        */
       __publicField(this, "pauseUntil", 0);
-      /** How many global rate-limit pauses have been applied so far */
-      __publicField(this, "globalPauses", 0);
+      /** Number of 429 pauses taken in this batch; drives exponential backoff. */
+      __publicField(this, "batchPauses", 0);
       this.minBackoff = minBackoff;
       this.maxBackoff = maxBackoff;
       this.backoff = minBackoff;
@@ -22243,7 +22243,7 @@ ${content2}`;
       this.status = "IDLE";
       this.backoff = this.minBackoff;
       this.pauseUntil = 0;
-      this.globalPauses = 0;
+      this.batchPauses = 0;
       this.total = 0;
       this.completed = 0;
     }
@@ -22280,19 +22280,12 @@ ${content2}`;
         requestObject.retries = 0;
       } catch (error2) {
         if (error2 instanceof RateLimitError) {
-          this.globalPauses++;
-          if (this.globalPauses > MAX_GLOBAL_PAUSES) {
-            console.warn("[Exporter] Queue stopped: API rate limit did not clear after", MAX_GLOBAL_PAUSES, "pauses");
-            this.stop();
-            return;
-          }
-          const pauseMs = Math.max(
-            error2.retryAfterMs,
-            DEFAULT_429_PAUSE_MS * this.globalPauses
-          );
+          this.batchPauses++;
+          const backoffMs = DEFAULT_429_PAUSE_MS * 2 ** (this.batchPauses - 1);
+          const pauseMs = Math.min(MAX_429_PAUSE_MS, Math.max(error2.retryAfterMs, backoffMs));
           this.pauseUntil = Date.now() + pauseMs;
           this.progress(name, "rate_limited", Math.round(pauseMs / 1e3));
-          console.warn(`[Exporter] Rate limited (429). Pausing queue for ${Math.round(pauseMs / 1e3)}s (pause #${this.globalPauses})`);
+          console.warn(`[Exporter] Rate limited (429). Pausing ${Math.round(pauseMs / 1e3)}s (pause #${this.batchPauses} this batch)`);
           this.queue.unshift(requestObject);
           waitMs = 0;
         } else {
@@ -22875,9 +22868,9 @@ ${content2}`;
     const [hasMore, setHasMore] = h$4(false);
     const [loadingMore, setLoadingMore] = h$4(false);
     const [totalAvailable, setTotalAvailable] = h$4(null);
-    const requestQueue = F$1(() => new RequestQueue(200, 1600), []);
-    const archiveQueue = F$1(() => new RequestQueue(200, 1600), []);
-    const deleteQueue = F$1(() => new RequestQueue(200, 1600), []);
+    const requestQueue = F$1(() => new RequestQueue(1e3, 1600), []);
+    const archiveQueue = F$1(() => new RequestQueue(1e3, 1600), []);
+    const deleteQueue = F$1(() => new RequestQueue(1e3, 1600), []);
     const [progress, setProgress] = h$4({
       total: 0,
       completed: 0,
@@ -22957,7 +22950,7 @@ ${content2}`;
         const totalBatches2 = totalBatchesRef.current;
         const partIndex = batchIdx + 1;
         const callback = (_a = exportAllOptions.find((o3) => o3.label === exportType)) == null ? void 0 : _a.callback;
-        if (callback) {
+        if (callback && results.length > 0) {
           await callback(format, results, metaList, selectedProject == null ? void 0 : selectedProject.display.name, partIndex, totalBatches2);
         }
         if (partIndex < totalBatches2) {
