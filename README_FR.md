@@ -42,6 +42,8 @@
 [Install-2-image]: https://img.shields.io/badge/-Installer-blue
 [Install-2-url]: https://raw.githubusercontent.com/pionxzh/chatgpt-exporter/master/dist/chatgpt.user.js
 
+> Assurez-vous que l'option [`Allow User Scripts` est activée](https://www.tampermonkey.net/faq.php?q=Q209) dans les paramètres de votre navigateur pour Tampermonkey.
+
 #
 
 [📚 Formats Supportés](#-formats-supportés) &nbsp;&nbsp;|&nbsp;&nbsp; [💡 Exemple](#-exemple) &nbsp;&nbsp;|&nbsp;&nbsp; [📤 Exporter Plusieurs Conversations](#-exporter-plusieurs-conversations) &nbsp;&nbsp;|&nbsp;&nbsp; [🤝 Contribution](#-contribution) &nbsp;&nbsp;|&nbsp;&nbsp; [⭐ Historique des Étoiles](#-historique-des-étoiles)
@@ -254,6 +256,6 @@ Voir [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 <div align="center">
 
-<img src="https://api.star-history.com/svg?repos=pionxzh/chatgpt-exporter&type=Date" width="600" height="400" alt="Graphique de l'historique des étoiles" valign="middle">
+<img src="https://star-history.dera.page/svg?repos=pionxzh/chatgpt-exporter&type=Date" width="600" height="400" alt="Graphique de l'historique des étoiles" valign="middle">
 
 </div>
